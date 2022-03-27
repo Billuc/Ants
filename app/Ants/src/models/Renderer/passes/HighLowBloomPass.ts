@@ -14,10 +14,10 @@ import {
 } from 'three';
 import { FullScreenQuad, Pass } from 'three/examples/jsm/postprocessing/Pass';
 import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
-import SeparableBlurMaterial from './materials/SeparableBlurMaterial';
-import { CompositeMaterial } from './materials/CompositeMaterial';
-import LuminosityHighLowMaterial from './materials/LuminosityHighLowMaterial';
-import CopyMaterial from './materials/CopyMaterial';
+import SeparableBlurMaterial from '../materials/SeparableBlurMaterial';
+import { CompositeMaterial } from '../materials/CompositeMaterial';
+import LuminosityHighLowMaterial from '../materials/LuminosityHighLowMaterial';
+import CopyMaterial from '../materials/CopyMaterial';
 
 /**
  * Bloom pass with both high and low thresholds
@@ -83,20 +83,20 @@ export class HighLowBloomPass extends Pass {
 		let resy = Math.round( this.resolution.y / 2 );
 
 		this.renderTargetBright = new WebGLRenderTarget( resx, resy, pars );
-		this.renderTargetBright.texture.name = 'UnrealBloomPass.bright';
+		this.renderTargetBright.texture.name = 'HighLowBloomPass.bright';
 		this.renderTargetBright.texture.generateMipmaps = false;
 
 		for ( let i = 0; i < this.nMips; i ++ ) {
 			const renderTargetHorizonal = new WebGLRenderTarget( resx, resy, pars );
 
-			renderTargetHorizonal.texture.name = 'UnrealBloomPass.h' + i;
+			renderTargetHorizonal.texture.name = 'HighLowBloomPass.h' + i;
 			renderTargetHorizonal.texture.generateMipmaps = false;
 
 			this.renderTargetsHorizontal.push( renderTargetHorizonal );
 
 			const renderTargetVertical = new WebGLRenderTarget( resx, resy, pars );
 
-			renderTargetVertical.texture.name = 'UnrealBloomPass.v' + i;
+			renderTargetVertical.texture.name = 'HighLowBloomPass.v' + i;
 			renderTargetVertical.texture.generateMipmaps = false;
 
 			this.renderTargetsVertical.push( renderTargetVertical );
@@ -252,7 +252,7 @@ export class HighLowBloomPass extends Pass {
 			inputRenderTarget = this.renderTargetsVertical[ i ];
 		}
 
-		// Composite All the mips
+		// 3. Composite All the mips
 
 		this.fsQuad.material = this.compositeMaterial;
 		this.compositeMaterial.uniforms[ 'bloomStrength' ].value = this.strength;
@@ -263,7 +263,7 @@ export class HighLowBloomPass extends Pass {
 		renderer.clear();
 		this.fsQuad.render( renderer );
 
-		// Blend it additively over the input texture
+		// 4. Blend it additively over the input texture
 
 		this.fsQuad.material = this.copyMaterial;
 		this.copyMaterial.uniforms[ 'tDiffuse' ].value = this.renderTargetsHorizontal[ 0 ].texture;
@@ -278,7 +278,7 @@ export class HighLowBloomPass extends Pass {
 			this.fsQuad.render( renderer );
 		}
 
-		// Restore renderer settings
+		// 5. Restore renderer settings
 
 		renderer.setClearColor( this._oldClearColor, this.oldClearAlpha );
 		renderer.autoClear = oldAutoClear;

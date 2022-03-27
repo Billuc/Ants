@@ -13,8 +13,10 @@ export const newStandardLight = lightStandardFragment;
 
 export const oldMapPars = `#include <map_pars_fragment>`;
 
-export const newMapPars = `#include <map_pars_fragment>
-uniform sampler2D nightMap;`;
+export const newMapPars = `
+    #include <map_pars_fragment>
+    uniform sampler2D nightMap;
+`;
 
 export const oldStandardMap = `#include <map_fragment>`;
 

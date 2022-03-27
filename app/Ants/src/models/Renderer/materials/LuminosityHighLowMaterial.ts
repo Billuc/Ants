@@ -1,5 +1,5 @@
 import { ShaderMaterial, UniformsUtils } from "three";
-import { LuminosityHighLowPassShader } from "../shaders/luminosityHighLowPassShader";
+import { LuminosityHighLowPassShader } from "../shaders/LuminosityHighLowPassShader";
 
 export default class LuminosityHighLowMaterial extends ShaderMaterial {
     constructor() {

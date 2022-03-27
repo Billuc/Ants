@@ -1,14 +1,15 @@
 import { Vector2 } from "three";
 
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { EffectComposer, Pass } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import AntCamera from "../Camera/camera";
 import AntScene from "../Scene/scene";
 
 import { BLOOM_RADIUS, BLOOM_STRENGTH, BLOOM_THRESHOLD, WORLD_BLOOM_HIGH_THRESHOLD, WORLD_BLOOM_LOW_THRESHOLD, WORLD_BLOOM_RADIUS, WORLD_BLOOM_STRENGTH } from "./consts";
-import FinalPass from "./finalPass";
-import { HighLowBloomPass } from "./HighLowBloomPass";
+import { ContrastBloomPass } from "./passes/ContrastBloomPass";
+import FinalPass from "./passes/FinalPass";
+import { HighLowBloomPass } from "./passes/HighLowBloomPass";
 import AntsPostProcessingHelper from "./postProcessingHelper";
 import AntsRenderer from "./renderer";
 
@@ -24,7 +25,7 @@ export default class AntsPostProcessingEffects {
     private renderPass: RenderPass | undefined;
     private bloomPass: UnrealBloomPass | undefined;
     private finalPass: FinalPass | undefined;
-    private worldPass: HighLowBloomPass | undefined;
+    private worldPass: Pass | undefined;
 
     private helper: AntsPostProcessingHelper;
 
@@ -62,25 +63,23 @@ export default class AntsPostProcessingEffects {
 
         // World Composer
 
-        this.worldPass = new HighLowBloomPass(
+        this.worldPass = new ContrastBloomPass(
             new Vector2(renderer.width, renderer.height),
             WORLD_BLOOM_STRENGTH,
-            WORLD_BLOOM_RADIUS,
-            WORLD_BLOOM_LOW_THRESHOLD,
-            WORLD_BLOOM_HIGH_THRESHOLD
+            WORLD_BLOOM_RADIUS
         );
 
         this.worldComposer = new EffectComposer(renderer.getRenderer());
-        this.worldComposer.renderToScreen = true;
+        this.worldComposer.renderToScreen = false;
         this.worldComposer.addPass(this.renderPass);
         this.worldComposer.addPass(this.worldPass);
 
         // Final Composer
 
-        this.finalPass = new FinalPass(this.bloomComposer);
+        this.finalPass = new FinalPass(this.bloomComposer, this.worldComposer);
 
         this.finalComposer = new EffectComposer(renderer.getRenderer());
-        this.finalComposer.renderToScreen = false;
+        this.finalComposer.renderToScreen = true;
         this.finalComposer.addPass(this.renderPass);
         this.finalComposer.addPass(this.finalPass);
 
