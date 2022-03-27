@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: ./dockerfiles/angular.dockerfile
+    volumes:
+      - ./app/Ants/src:/app/src:rw
+      - ./app/Ants/angular.json:/app/angular.json:rw
+      - ./app/Ants/tsconfig.json:/app/tsconfig.json:rw
+      - ./app/Ants/tsconfig.app.json:/app/tsconfig.app.json:rw
+      - ./app/Ants/tsconfig.spec.json:/app/tsconfig.spec.json:rw
+    ports:
+      - 4200:4200
+
+  init:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/init.dockerfile
+    volumes:
+      - ./app:/app:rw
+    ports:
+      - 4200:4200
